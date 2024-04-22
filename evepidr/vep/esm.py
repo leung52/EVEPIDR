@@ -50,15 +50,7 @@ def embed(model_alpha: tuple, sequences: list, file_path: str) -> None:
             token_representations = results["representations"][33]
 
         # Save embeddings to h5py file
-        with h5py.File(file_path, 'a') as hf:
-            for sequence, embedding in zip(sequence_batch, token_representations):
-                embedding_data = np.array(embedding)
-                if sequence in hf:
-                    # If the dataset already exists, overwrite the data
-                    hf[sequence][...] = embedding_data
-                else:
-                    # If the dataset doesn't exist, create a new one
-                    hf.create_dataset(sequence, data=embedding_data, maxshape=(None,))
+        save_to_h5py(token_representations, sequence_batch, file_path)
 
 def zero_shot_variant_prediction(model_alpha: tuple, sequences: list, file_path: str) -> None:
     """
