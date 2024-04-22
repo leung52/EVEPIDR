@@ -25,7 +25,7 @@ def load_esm_1v() -> tuple:
 
 def embed(model_alpha: tuple, sequences: list, file_path: str) -> None:
     """
-    CODE DOES NOT APPEAR TO WORK FOR ESM-1v
+    For ESM_1b only.
     """
     model = model_alpha[0]
     alphabet = model_alpha[1]
@@ -57,3 +57,9 @@ def embed(model_alpha: tuple, sequences: list, file_path: str) -> None:
                 else:
                     # If the dataset doesn't exist, create a new one
                     hf.create_dataset(sequence, data=embedding_data, maxshape=(None,))
+
+def zero_shot_variant_prediction(model_alpha: tuple, sequences: list, file_path: str) -> None:
+    """
+    Code for ESM_1v only. Not tested on ESM-1b.
+    """
+    pass
