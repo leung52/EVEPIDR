@@ -25,6 +25,7 @@ def load_esm_1v() -> tuple:
 
 def embed(model_alpha: tuple, sequences: list, file_path: str) -> None:
   """
+  CODE DOES NOT APPEAR TO WORK FOR ESM-1v
   """
   model = model_alpha[0]
   alphabet = model_alpha[1]
