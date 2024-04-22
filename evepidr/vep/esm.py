@@ -3,10 +3,7 @@ import esm
 import h5py
 import pandas as pd
 
-from evepidr.vep.utils import batchify
-
-# TO DO: write DocStrings
-# TO DO: check sequences are <= 1024 in length
+from evepidr.vep.lm_utils import batchify, save_to_h5py
 
 # https://github.com/facebookresearch/esm
 
