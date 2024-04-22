@@ -27,6 +27,7 @@ def embed(model_alpha: tuple, sequences: list, file_path: str) -> None:
     """
     For ESM_1b only.
     """
+    # TO DO: Check sequences are all same length and <= 1024
     model = model_alpha[0]
     alphabet = model_alpha[1]
   
