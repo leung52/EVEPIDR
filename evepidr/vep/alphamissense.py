@@ -29,4 +29,4 @@ def alpha_missense_scores(variants_df: pd.DataFrame, am_tsv_file_path: str, save
     # Save the filtered results to a new CSV file
     am_predictions_df.to_csv(save_to_file, index=False)
 
-    return filtered_alpha_miss_df
+    return am_predictions_df
