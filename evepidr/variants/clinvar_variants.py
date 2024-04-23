@@ -42,7 +42,20 @@ def clinvar_snp_missense_id_list(gene: str, retmax: int=10000) -> list:
         if root.find(".//Count").text == '0':
             print(f"Zero variants found for {gene}.")
         if len(ids) < int(root.find(".//Count").text):
-            print(f'Only {len(ids)} out of {root.find(".//Count").text} variant IDs are listed. For all variant IDs, adjust retmax.')
+            print(f'Only {len(ids)} out of {root.find(".//Count").text} variant IDs are listed. To list all variant IDs, adjust retmax.')
         return ids
     else:
-        raise Exception: ('An error occurred', 'Request URL invalid', requestURL)
+        raise Exception('An error occurred', 'Request URL invalid', requestURL)
+
+def clinvar_variant_info(variant_ids: list, file_path: str) -> str:
+    """
+    """
+    id_string = ",".join(variant_ids)
+    request_url = f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=clinvar&id={id_string}"
+    response = requests.get(request_url)
+    if response.ok:
+        with open(file_path, "wb") as file:
+            file.write(response.content)
+        return response.text
+    else:
+        raise Exception('An error occurred', 'Request URL invalid', requestURL)
