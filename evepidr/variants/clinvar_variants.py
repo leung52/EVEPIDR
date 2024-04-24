@@ -1,6 +1,7 @@
 import pandas as pd
 import requests
 import json
+import xml.etree.ElementTree as ET
 
 from evepidr.variants.utils import mutate_sequence
 
@@ -21,17 +22,7 @@ def get_canonical_sequence_from_uniprot(accessions: list) -> dict:
 
     return gene_to_sequence
 
-def get_missense_mutations_from_clinvar(gene: str) -> pd.DataFrame:
-    """
-    """
-    pass
-
-def set_up_variants_dataframe(protein_seq: str, clinvar_df: pd.DataFrame) -> pd.DataFrame:
-    """
-    """
-    pass
-
-def clinvar_snp_missense_id_list(gene: str, retmax: int=10000) -> list:
+def clinvar_snp_missense_variants_id_list(gene: str, retmax: int=10000) -> list:
     """
     """
     requestURL = f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=clinvar&term=(({gene}%5BGene%20Name%5D)%20AND%20%22single%20nucleotide%20variant%22%5BType%20of%20variation%5D)%20AND%20%22missense%20variant%22%5BMolecular%20consequence%5D&retmax={retmax}"
@@ -47,15 +38,24 @@ def clinvar_snp_missense_id_list(gene: str, retmax: int=10000) -> list:
     else:
         raise Exception('An error occurred', 'Request URL invalid', requestURL)
 
-def clinvar_variant_info(variant_ids: list, file_path: str) -> str:
+def clinvar_variant_info(variant_ids: list) -> ET.Element:
     """
     """
     id_string = ",".join(variant_ids)
     request_url = f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=clinvar&id={id_string}"
     response = requests.get(request_url)
     if response.ok:
-        with open(file_path, "wb") as file:
-            file.write(response.content)
-        return response.text
+        return ET.fromstring(response.text)
     else:
         raise Exception('An error occurred', 'Request URL invalid', requestURL)
+
+def clean_clinvar_xml_variants(protein_sequences: dict, clinvar_xml_root: ET.Element, csv_file_path: str) -> pd.DataFrame:
+    """
+    """
+    # require the following information: sequence, gene, clinvar_id, aa_substitution, pathogenicity
+    # clinvar_id from ????
+    # gene and aa_substitution from title
+    # pathogenicity from germline_classification/clinical_impact_classification/oncogenicity_classification
+    clinvar_xml_root
+
+
