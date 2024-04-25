@@ -3,7 +3,7 @@ import requests
 import json
 import xml.etree.ElementTree as ET
 
-from evepidr.variants.utils import mutate_sequence
+from evepidr.variants.utils import mutate_sequence, three_to_one_aa_code
 
 def get_canonical_sequence_from_uniprot(accessions: list) -> dict:
     """
@@ -69,7 +69,8 @@ def clean_clinvar_xml_variants(protein_sequences: dict, clinvar_xml: ET.Element)
         title = variant_xml.find('title').text
         parts = title.split('(')
         gene = parts[1].split(')')[0]
-        mutation = parts[-1].split(')')[0][2:]
+        mutation = parts[-1].split(')')[0]
+        mutation = three_to_one_aa_code(mutation[2:6]) + mutation[6:-3] + three_to_one_aa_code(mutation[-3:])
         germline_classification = variant_xml.find('.//germline_classification/description').text
 
         sequence = 
