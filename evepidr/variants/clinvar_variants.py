@@ -64,22 +64,32 @@ def clean_clinvar_xml_variants(protein_sequences: dict, clinvar_xml: ET.Element)
     """
     # require the following information: sequence, gene, clinvar_id, aa_substitution, pathogenicity
     # make remember to add canon
+    sequences = []
+    genes = []
+    aa_substitutions = []
+    pathogenicities = []
+    clinvar_ids = []
+    
     for variant_xml in x.findall(".//DocumentSummary"):
-        id = variant_xml.get('uid')
-        title = variant_xml.find('title').text
-        parts = title.split('(')
-        gene = parts[1].split(')')[0]
-        mutation = parts[-1].split(')')[0]
-        mutation = three_to_one_aa_code(mutation[2:6]) + mutation[6:-3] + three_to_one_aa_code(mutation[-3:])
         germline_classification = variant_xml.find('.//germline_classification/description').text
+        germline_classification = adjust_clinvar_classification(germline_classification)
+        if germline_classification in ['Pathogenic', 'Benign']:
+            clinvar_ids.append(variant_xml.get('uid'))
+            title = variant_xml.find('title').text
+            parts = title.split('(')
+            genes.append(parts[1].split(')')[0])
+            mutation = parts[-1].split(')')[0]
+            aa_substitutions.append(three_to_one_aa_code(mutation[2:6]) + mutation[6:-3] + three_to_one_aa_code(mutation[-3:]))
+            sequences.append(mutate_sequence(canon_sequence, mutation[1:-1], mutation[1:-1], mutation[-1]))
+            pathogenicities.append(germline_classification)
+    
+    data = {
+        'Sequence': sequences,
+        'Gene': genes,
+        'AA Substitution': aa_substitutions,
+        'Pathogenicity': pathogenicities,
+        'ClinVar ID': clinvar_ids
+    }
 
-        sequence = 
-        # check if pathogenicity is benign or pathogenic
-        data = {
-            'Sequence': sequence,
-            'Gene': gene,
-            'AA Substitution': mutation,
-            'Pathogenicity': germline_classification,
-            'ClinVar ID': id
-        }
+    return pd.DataFrame()
         
