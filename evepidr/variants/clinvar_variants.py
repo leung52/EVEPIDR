@@ -59,13 +59,26 @@ def clinvar_variant_info(variant_ids: list) -> ET.Element:
 
     return compiled_xml
 
-def clean_clinvar_xml_variants(protein_sequences: dict, clinvar_xml_root: ET.Element, csv_file_path: str) -> pd.DataFrame:
+def clean_clinvar_xml_variants(protein_sequences: dict, clinvar_xml: ET.Element) -> pd.DataFrame:
     """
     """
     # require the following information: sequence, gene, clinvar_id, aa_substitution, pathogenicity
-    # clinvar_id from ????
-    # gene and aa_substitution from title
-    # pathogenicity from germline_classification/clinical_impact_classification/oncogenicity_classification
-    clinvar_xml_root
+    # make remember to add canon
+    for variant_xml in x.findall(".//DocumentSummary"):
+        id = variant_xml.get('uid')
+        title = variant_xml.find('title').text
+        parts = title.split('(')
+        gene = parts[1].split(')')[0]
+        mutation = parts[-1].split(')')[0][2:]
+        germline_classification = variant_xml.find('.//germline_classification/description').text
 
-
+        sequence = 
+        # check if pathogenicity is benign or pathogenic
+        data = {
+            'Sequence': sequence,
+            'Gene': gene,
+            'AA Substitution': mutation,
+            'Pathogenicity': germline_classification,
+            'ClinVar ID': id
+        }
+        
