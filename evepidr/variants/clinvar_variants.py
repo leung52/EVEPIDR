@@ -25,8 +25,8 @@ def get_canonical_sequence_from_uniprot(accessions: list) -> dict:
 def clinvar_snp_missense_variants_id_list(gene: str, retmax: int=10000) -> list:
     """
     """
-    requestURL = f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=clinvar&term=(({gene}%5BGene%20Name%5D)%20AND%20%22single%20nucleotide%20variant%22%5BType%20of%20variation%5D)%20AND%20%22missense%20variant%22%5BMolecular%20consequence%5D&retmax={retmax}"
-    response = requests.get(requestURL)
+    request_url = f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=clinvar&term=(({gene}%5BGene%20Name%5D)%20AND%20%22single%20nucleotide%20variant%22%5BType%20of%20variation%5D)%20AND%20%22missense%20variant%22%5BMolecular%20consequence%5D&retmax={retmax}"
+    response = requests.get(request_url)
     if response.ok:
         root = ET.fromstring(response.text)
         ids = [id_element.text for id_element in root.findall(".//Id")]
@@ -36,7 +36,8 @@ def clinvar_snp_missense_variants_id_list(gene: str, retmax: int=10000) -> list:
             print(f'Only {len(ids)} out of {root.find(".//Count").text} variant IDs are listed. To list all variant IDs, adjust retmax.')
         return ids
     else:
-        raise Exception('An error occurred', 'Request URL invalid', requestURL)
+        response.raise_for_status()
+        sys.exit()
 
 def clinvar_variant_info(variant_ids: list) -> ET.Element:
     """
