@@ -42,13 +42,22 @@ def clinvar_snp_missense_variants_id_list(gene: str, retmax: int=10000) -> list:
 def clinvar_variant_info(variant_ids: list) -> ET.Element:
     """
     """
-    id_string = ",".join(variant_ids)
-    request_url = f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=clinvar&id={id_string}"
-    response = requests.get(request_url)
-    if response.ok:
-        return ET.fromstring(response.text)
-    else:
-        raise Exception('An error occurred', 'Request URL invalid', requestURL)
+    compiled_xml = ET.Element("EntrezESummaryResults")
+
+    for i in range(0, len(variant_ids), 1):
+        chunk = variant_ids[i:i+1]
+        id_string = ",".join(chunk)
+        request_url = f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=clinvar&id={id_string}"
+        response = requests.get(request_url)
+        if response.ok:
+            chunk_xml = ET.fromstring(response.text)
+            for doc_summary in chunk_xml.findall(".//DocumentSummary"):
+                compiled_xml.append(doc_summary)
+        else:
+            response.raise_for_status()
+            sys.exit()
+
+    return compiled_xml
 
 def clean_clinvar_xml_variants(protein_sequences: dict, clinvar_xml_root: ET.Element, csv_file_path: str) -> pd.DataFrame:
     """
