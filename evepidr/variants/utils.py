@@ -56,3 +56,15 @@ def three_to_one_aa_code(code: str) -> str:
         raise ValueError(f"{code} is not an amino acid code")
     else:
         return one_code
+
+def adjust_clinvar_classification(clinvar_classification: str) -> str:
+    """
+    """
+    groups = {
+        ["Benign", "Likely benign", "protective"]: 'Bengin',
+        ["Likely pathogenic", "Pathogenic", "Likely pathogenic, low penetrance", "Pathogenic, low penetrance", "Likely risk allele", "Established risk allele", "association"]: 'Pathogenic'
+    }
+    for key, value in groups.items():
+        if clinvar_classification in key:
+            return value
+    return "Other"
