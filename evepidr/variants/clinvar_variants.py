@@ -3,7 +3,7 @@ import requests
 import json
 import xml.etree.ElementTree as ET
 
-from evepidr.variants.utils import mutate_sequence, three_to_one_aa_code
+from evepidr.variants.utils import mutate_sequence, three_to_one_aa_code, adjust_clinvar_classification
 
 def get_canonical_sequence_from_uniprot(accessions: list) -> dict:
     """
@@ -91,5 +91,5 @@ def clean_clinvar_xml_variants(protein_sequences: dict, clinvar_xml: ET.Element)
         'ClinVar ID': clinvar_ids
     }
 
-    return pd.DataFrame()
+    return pd.DataFrame(data)
         
