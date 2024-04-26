@@ -11,6 +11,7 @@ def get_canonical_sequence_from_uniprot(accessions: list) -> dict:
     """
     """
     gene_to_sequence = {}
+    gene_to_accession = {}
     
     for accession in accessions:
         # Accessing Uniprot protein data for uniprot_id through Proteins REST API
@@ -19,10 +20,11 @@ def get_canonical_sequence_from_uniprot(accessions: list) -> dict:
         if response.ok:
             responseBody = json.loads(response.text)
             gene_to_sequence[responseBody["gene"][0]["name"]["value"]] = responseBody["sequence"]["sequence"]
+            gene_to_accession[responseBody["gene"][0]["name"]["value"]] = accession
         else:
             print(f"{accession} not found.")
 
-    return gene_to_sequence
+    return gene_to_sequence, gene_to_accession
 
 def clinvar_snp_missense_variants_id_list(gene: str, retmax: int=10000) -> list:
     """
@@ -62,7 +64,7 @@ def clinvar_variant_info(variant_ids: list) -> ET.ElementTree:
 
     return ET.ElementTree(compiled_xml)
 
-def clean_clinvar_xml_variants(protein_sequences: dict, clinvar_xml: ET.Element) -> pd.DataFrame:
+def clean_clinvar_xml_variants(protein_sequences: dict, gene_to_accession: dict, clinvar_xml: ET.Element) -> pd.DataFrame:
     """
     """
     sequences = []
@@ -70,6 +72,7 @@ def clean_clinvar_xml_variants(protein_sequences: dict, clinvar_xml: ET.Element)
     aa_substitutions = []
     pathogenicities = []
     clinvar_ids = []
+    uniprot_ids = []
     
     for variant_xml in clinvar_xml.findall(".//DocumentSummary"):
         germline_classification = variant_xml.find('.//germline_classification/description').text
@@ -96,6 +99,7 @@ def clean_clinvar_xml_variants(protein_sequences: dict, clinvar_xml: ET.Element)
                         aa_substitutions.append(mutation)
                         pathogenicities.append(germline_classification)
                         clinvar_ids.append(id)
+                        uniprot_ids.append(gene_to_accession.get(gene))
 
     for gene in set(genes):
         sequences.append(protein_sequences[gene])
@@ -103,13 +107,15 @@ def clean_clinvar_xml_variants(protein_sequences: dict, clinvar_xml: ET.Element)
         aa_substitutions.append(None)
         pathogenicities.append("Canon")
         clinvar_ids.append(None)
+        uniprot_ids.append(gene_to_accession.get(gene))
         
     data = {
         'Sequence': sequences,
         'Gene': genes,
         'AA Substitution': aa_substitutions,
         'Pathogenicity': pathogenicities,
-        'ClinVar ID': clinvar_ids
+        'ClinVar ID': clinvar_ids,
+        'UniProt ID': uniprot_ids
     }
     
     return pd.DataFrame(data)
