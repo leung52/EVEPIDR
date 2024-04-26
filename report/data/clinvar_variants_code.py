@@ -13,7 +13,7 @@ for gene in genes_to_sequence.keys():
     time.sleep(0.333333334)
 
 clinvar_xml = clinvar_variant_info(clinvar_ids)
-clinvar_xml.write("ClinVar_data_all.xml")
+clinvar_xml.write("clincar_data.xml")
 
 clinvar_df = clean_clinvar_xml_variants(genes_to_sequence, clinvar_xml)
 
@@ -37,4 +37,4 @@ idrs = {
 }
 
 clinvar_xml = label_if_substitution_in_idr(clinvar_df, idrs)
-clinvar_df.to_csv("ClinVar_data_patho_benign.csv", index=False)
+clinvar_df.to_csv("clinvar_data_patho_benign.csv", index=False)
