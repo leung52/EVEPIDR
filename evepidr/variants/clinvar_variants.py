@@ -65,7 +65,6 @@ def clinvar_variant_info(variant_ids: list) -> ET.ElementTree:
 def clean_clinvar_xml_variants(protein_sequences: dict, clinvar_xml: ET.Element) -> pd.DataFrame:
     """
     """
-    # make remember to add canon
     sequences = []
     genes = []
     aa_substitutions = []
@@ -98,6 +97,13 @@ def clean_clinvar_xml_variants(protein_sequences: dict, clinvar_xml: ET.Element)
                         pathogenicities.append(germline_classification)
                         clinvar_ids.append(id)
 
+    for gene in set(genes):
+        sequences.append(protein_sequences[gene])
+        genes.append(gene)
+        aa_substitutions.append(None)
+        pathogenicities.append("Canon")
+        clinvar_ids.append(None)
+        
     data = {
         'Sequence': sequences,
         'Gene': genes,
@@ -105,8 +111,5 @@ def clean_clinvar_xml_variants(protein_sequences: dict, clinvar_xml: ET.Element)
         'Pathogenicity': pathogenicities,
         'ClinVar ID': clinvar_ids
     }
-
-    df = pd.DataFrame(data)
     
-
-    return 
+    return pd.DataFrame(data)
