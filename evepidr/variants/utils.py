@@ -61,8 +61,8 @@ def adjust_clinvar_classification(clinvar_classification: str) -> str:
     """
     """
     groups = {
-        ["Benign", "Likely benign", "protective"]: 'Bengin',
-        ["Likely pathogenic", "Pathogenic", "Likely pathogenic, low penetrance", "Pathogenic, low penetrance", "Likely risk allele", "Established risk allele", "association"]: 'Pathogenic'
+        ("Benign", "Likely benign", "protective"): 'Benign',
+        ("Likely pathogenic", "Pathogenic", "Likely pathogenic, low penetrance", "Pathogenic, low penetrance", "Likely risk allele", "Established risk allele", "association"): 'Pathogenic'
     }
     for key, value in groups.items():
         if clinvar_classification in key:
