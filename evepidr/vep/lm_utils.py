@@ -32,7 +32,7 @@ def prepare_sequences_for_lms(variants_df: pd.DataFrame, protein_sequnces: dict)
     for (gene, df_chunk) in variants_df.groupby('Gene'):
         variants = list(df_chunk['AA Substitution'])
         canon_sequence = protein_sequences.get(gene)
-        variant_sequences = []
+        variant_sequences = [canon_sequence]
         for variant in variants:
             variant_sequences.append(_mutate(canon_sequence, variant))
         ls.append(variant_sequences)
