@@ -1,6 +1,18 @@
 import numpy as np
 import pandas as pd
 
+def prepare_sequences_for_lms(variants_df: pd.DataFrame, protein_sequnces: dict) -> list:
+    """
+    """
+    ls = []
+    for (gene, df_chunk) in variants_df.groupby('Gene'):
+        variants = list(df_chunk['AA Substitution'])
+        canon_sequence = protein_sequences.get(gene)
+        variant_sequences = []
+        for variant in variants:
+            variant_sequences.append(_mutate(canon_sequence, variant))
+        ls.append(variant_sequences)
+    return ls
 
 def reduce(embeddings: np.ndarray) -> np.ndarray:
     """
@@ -94,3 +106,24 @@ def hdf5_to_dict(file_path: str) -> dict:
           embeddings[sequence] = hf[sequence][:]
   
     return embeddings
+
+
+
+## ==================== helper function ===============================
+def _mutate(protein_sequence: str, mutation: str) -> str:
+    """
+    """
+    # Adjusting for 1-based index
+    n = int(mutation[1:-1])
+    start_index = n - 1
+    end_index = n
+  
+    # Ensure the start and end positions are within the original sequence
+    if start_index < 0 or end_index > len(protein_sequence) or start_index > end_index:
+        raise ValueError("Invalid start or end position for the sequence mutation.")
+
+    assert protein_sequence[start_index] == mutation[0]
+    # Replace the sequence between start and end with new_sequence
+    mutated_sequence = protein_sequence[:start_index] + mutation[-1] + protein_sequence[end_index:]
+  
+    return mutated_sequence
