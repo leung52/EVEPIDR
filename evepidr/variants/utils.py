@@ -1,3 +1,26 @@
+def fasta_to_dict(file_path: str) -> dict:
+    """
+    """
+    sequences = {}
+    with open(file_path, "r") as f:
+        title = None
+        sequence = ""
+        for line in f:
+            if line.startswith(">"):
+                # If title is not None, store the previous sequence
+                if title is not None:
+                    sequences[title] = sequence
+                # Extract title from FASTA header
+                title = line.strip()[1:]
+                sequence = ""
+            else:
+                # Append sequence line
+                sequence += line.strip()
+        # Store the last sequence
+        if title is not None:
+            sequences[title] = sequence
+    return sequences
+
 def mutate_sequence(protein_sequence: str, start: int, end: int, mutation: str) -> str:
     """
     Mutates a given sequence by replacing the part from start to end with mutation.
