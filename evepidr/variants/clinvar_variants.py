@@ -4,7 +4,7 @@ import time
 import re
 import xml.etree.ElementTree as ET
 
-from evepidr.variants.utils import mutate_sequence, three_to_one_aa_code, adjust_clinvar_classification
+from evepidr.variants.utils import three_to_one_aa_code, adjust_clinvar_classification
 
 
 def clinvar_snp_missense_variants_id_list(gene: str, retmax: int=10000) -> list:
