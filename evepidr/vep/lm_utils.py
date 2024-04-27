@@ -25,18 +25,30 @@ def fasta_to_dict(file_path: str) -> dict:
             sequences[title] = sequence
     return sequences
 
-def prepare_sequences_for_lms(variants_df: pd.DataFrame, protein_sequnces: dict) -> list:
+def prepare_sequences_for_lms(variants_df: pd.DataFrame, protein_sequences: dict) -> tuple:
     """
     """
-    ls = []
-    for (gene, df_chunk) in variants_df.groupby('Gene'):
-        variants = list(df_chunk['AA Substitution'])
-        canon_sequence = protein_sequences.get(gene)
-        variant_sequences = [canon_sequence]
-        for variant in variants:
-            variant_sequences.append(_mutate(canon_sequence, variant))
-        ls.append(variant_sequences)
-    return ls
+    df = variants_df.copy()
+    df['Sequence'] = None
+    
+    for index, row in df.iterrows():
+        gene = row['Gene']
+        sequence = protein_sequences.get(gene)
+        if sequence:
+            aa_substitution = row['AA Substitution']
+            if len(aa_substitution) > 2:
+                sequence = _mutate(sequence, aa_substitution)
+            df.at[index, 'Sequence'] = sequence
+        else:
+            df.drop(index, inplace=True)
+
+    sequences = []
+    for group in df_copy.groupby('Gene'):
+        ls = list(group['Sequences'])
+        ls.append(protein_sequences[gene])
+        sequences.append(ls)
+                          
+    return sequences, df
 
 def reduce(embeddings: np.ndarray) -> np.ndarray:
     """
