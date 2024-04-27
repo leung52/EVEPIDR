@@ -64,10 +64,9 @@ def clinvar_variant_info(variant_ids: list) -> ET.ElementTree:
 
     return ET.ElementTree(compiled_xml)
 
-def clean_clinvar_xml_variants(protein_sequences: dict, gene_to_accession: dict, clinvar_xml: ET.Element) -> pd.DataFrame:
+def clean_clinvar_xml_variants(gene_to_accession: dict, clinvar_xml: ET.Element) -> pd.DataFrame:
     """
     """
-    sequences = []
     genes = []
     aa_substitutions = []
     pathogenicities = []
@@ -89,28 +88,14 @@ def clean_clinvar_xml_variants(protein_sequences: dict, gene_to_accession: dict,
                     mutation = None
                 if mutation:
                     gene = parts[1].split(')')[0]
-                    canon_sequence = protein_sequences.get(gene)
-                    if canon_sequence:
-                        sequence = mutate_sequence(canon_sequence, int(mutation[1:-1]), int(mutation[1:-1]), mutation[-1])
-                        id = variant_xml.get('uid')
-
-                        sequences.append(sequence)
-                        genes.append(gene)
-                        aa_substitutions.append(mutation)
-                        pathogenicities.append(germline_classification)
-                        clinvar_ids.append(id)
-                        uniprot_ids.append(gene_to_accession.get(gene))
-
-    for gene in set(genes):
-        sequences.append(protein_sequences[gene])
-        genes.append(gene)
-        aa_substitutions.append(None)
-        pathogenicities.append("Canon")
-        clinvar_ids.append(None)
-        uniprot_ids.append(gene_to_accession.get(gene))
+                    id = variant_xml.get('uid')
+                    genes.append(gene)
+                    aa_substitutions.append(mutation)
+                    pathogenicities.append(germline_classification)
+                    clinvar_ids.append(id)
+                    uniprot_ids.append(gene_to_accession.get(gene))
         
     data = {
-        'Sequence': sequences,
         'Gene': genes,
         'AA Substitution': aa_substitutions,
         'Pathogenicity': pathogenicities,
