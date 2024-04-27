@@ -43,7 +43,7 @@ def clinvar_variant_info(variant_ids: list) -> ET.ElementTree:
 
     return ET.ElementTree(compiled_xml)
 
-def clean_clinvar_xml_variants(gene_to_accession: dict, clinvar_xml: ET.Element) -> pd.DataFrame:
+def clean_clinvar_xml_variants(gene_to_uniprot_id: dict, clinvar_xml: ET.Element) -> pd.DataFrame:
     """
     """
     genes = []
@@ -72,7 +72,7 @@ def clean_clinvar_xml_variants(gene_to_accession: dict, clinvar_xml: ET.Element)
                     aa_substitutions.append(mutation)
                     pathogenicities.append(germline_classification)
                     clinvar_ids.append(id)
-                    uniprot_ids.append(gene_to_accession.get(gene))
+                    uniprot_ids.append(gene_to_uniprot_id.get(gene))
         
     data = {
         'Gene': genes,
