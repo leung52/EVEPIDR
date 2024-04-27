@@ -4,8 +4,6 @@ import time
 import re
 import xml.etree.ElementTree as ET
 
-from evepidr.variants.utils import three_to_one_aa_code, adjust_clinvar_classification
-
 
 def clinvar_snp_missense_variants_id_list(gene: str, retmax: int=10000) -> list:
     """
@@ -56,7 +54,7 @@ def clean_clinvar_xml_variants(gene_to_accession: dict, clinvar_xml: ET.Element)
     
     for variant_xml in clinvar_xml.findall(".//DocumentSummary"):
         germline_classification = variant_xml.find('.//germline_classification/description').text
-        germline_classification = adjust_clinvar_classification(germline_classification)
+        germline_classification = _adjust_clinvar_classification(germline_classification)
         
         if germline_classification in ['Pathogenic', 'Benign']:
             title = variant_xml.find('title').text
@@ -64,7 +62,7 @@ def clean_clinvar_xml_variants(gene_to_accession: dict, clinvar_xml: ET.Element)
             mutation = parts[-1].split(')')[0]
             if re.fullmatch(r"p\.[A-Z][a-z]{2}\d+[A-Z][a-z]{2}", mutation):
                 try:
-                    mutation = three_to_one_aa_code(mutation[2:5]) + mutation[5:-3] + three_to_one_aa_code(mutation[-3:])
+                    mutation = _three_to_one_aa_code(mutation[2:5]) + mutation[5:-3] + _three_to_one_aa_code(mutation[-3:])
                 except ValueError:
                     mutation = None
                 if mutation:
@@ -85,3 +83,51 @@ def clean_clinvar_xml_variants(gene_to_accession: dict, clinvar_xml: ET.Element)
     }
     
     return pd.DataFrame(data)
+
+
+## ============ Helper functions ===========================================
+
+def _three_to_one_aa_code(code: str) -> str:
+    """
+    """
+    three_to_single = {
+        "Ala": "A",
+        "Arg": "R",
+        "Asn": "N",
+        "Asp": "D",
+        "Cys": "C",
+        "Glu": "E",
+        "Gln": "Q",
+        "Gly": "G",
+        "His": "H",
+        "Ile": "I",
+        "Leu": "L",
+        "Lys": "K",
+        "Met": "M",
+        "Phe": "F",
+        "Pro": "P",
+        "Ser": "S",
+        "Thr": "T",
+        "Trp": "W",
+        "Tyr": "Y",
+        "Val": "V"
+    }
+
+    one_code = three_to_single.get(code)
+    
+    if not one_code:
+        raise ValueError(f"{code} is not an amino acid code")
+    else:
+        return one_code
+
+def _adjust_clinvar_classification(clinvar_classification: str) -> str:
+    """
+    """
+    groups = {
+        ("Benign", "Likely benign", "protective"): 'Benign',
+        ("Likely pathogenic", "Pathogenic", "Likely pathogenic, low penetrance", "Pathogenic, low penetrance", "Likely risk allele", "Established risk allele", "association"): 'Pathogenic'
+    }
+    for key, value in groups.items():
+        if clinvar_classification in key:
+            return value
+    return "Other"
