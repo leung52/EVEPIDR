@@ -1,5 +1,6 @@
 import time
 import pandas as pd
+
 from evepidr.variants.uniprot_proteins import *
 from evepidr.variants.clinvar_variants import *
 from evepidr.variants.add_labels_to_variants import label_if_substitution_in_idr
