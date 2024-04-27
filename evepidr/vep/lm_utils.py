@@ -1,6 +1,30 @@
 import numpy as np
 import pandas as pd
 
+
+def fasta_to_dict(file_path: str) -> dict:
+    """
+    """
+    sequences = {}
+    with open(file_path, "r") as f:
+        title = None
+        sequence = ""
+        for line in f:
+            if line.startswith(">"):
+                # If title is not None, store the previous sequence
+                if title is not None:
+                    sequences[title] = sequence
+                # Extract title from FASTA header
+                title = line.strip()[1:]
+                sequence = ""
+            else:
+                # Append sequence line
+                sequence += line.strip()
+        # Store the last sequence
+        if title is not None:
+            sequences[title] = sequence
+    return sequences
+
 def prepare_sequences_for_lms(variants_df: pd.DataFrame, protein_sequnces: dict) -> list:
     """
     """
