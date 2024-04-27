@@ -13,11 +13,11 @@ import pandas as pd
 def alpha_missense_scores(variants_df: pd.DataFrame, am_tsv_file_path: str, save_to_file: str) -> pd.DataFrame:
     """
     """
-    # Initialize an empty DataFrame to store the filtered results
     am_predictions_df = pd.DataFrame()
 
     # Create a set for faster lookup
-    lookup_set = set(zip(variants_df['UniProt ID'], variants_df['AA Substitution']))
+    reference_df = = variants_df[variants_df['Pathogenicity'] != 'Canon']
+    lookup_set = set(zip(reference_df['UniProt ID'], reference_df['AA Substitution']))
 
     # Process the TSV file in chunks
     for chunk in pd.read_csv(am_tsv_file_path, sep='\t', chunksize=1000000, skiprows=3):
@@ -25,8 +25,5 @@ def alpha_missense_scores(variants_df: pd.DataFrame, am_tsv_file_path: str, save
         chunk_filtered = chunk[chunk.apply(lambda x: (x['uniprot_id'], x['protein_variant']) in lookup_set, axis=1)]
         # Append the filtered chunk to the results DataFrame
         am_predictions_df = pd.concat([am_predictions_df, chunk_filtered], ignore_index=True)
-
-    # Save the filtered results to a new CSV file
-    am_predictions_df.to_csv(save_to_file, index=False)
 
     return am_predictions_df
