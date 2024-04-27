@@ -43,7 +43,7 @@ def prepare_sequences_for_lms(variants_df: pd.DataFrame, protein_sequences: dict
             df.drop(index, inplace=True)
 
     sequences = []
-    for group in df_copy.groupby('Gene'):
+    for gene, group in df.groupby('Gene'):
         ls = list(group['Sequences'])
         ls.append(protein_sequences[gene])
         sequences.append(ls)
