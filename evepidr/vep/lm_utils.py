@@ -64,19 +64,27 @@ def normalise(embeddings: np.ndarray) -> np.ndarray:
     """
     return embeddings - np.mean(embeddings, axis=0)
 
-def cosine_distance(reduced_embeddings: dict, anno_df: pd.DataFrame, file_path: str) -> pd.DataFrame:
+def cosine_distance(reduced_embeddings: dict, variants_df_w_sequence: pd.DataFrame, gene_to_sequence: dict) -> pd.DataFrame:
     """
-    Calculates the cosine distance between sequence vectors in reduced_embeddings and the
-    canonical sequence vector of the corresponding protein, excluding sequences without embeddings.
+    """
+    # canon sequence embeddings
+    gene_to_embedding = {}
+    for key, value in gene_to_sequence.items():
+        if value in reduced_embeddings:
+            gene_to_embedding[key] = reduced_embeddings[value]
+
+    for index, row in variants_df_w_sequence.iterrows():
+        if row['Sequence'] in reduced_embeddings:
+            pass
+        else:
+            
+
+            
     
-    Parameters:
-    reduced_embeddings (dict): Dictionary with sequences as keys and 1D vectors as values.
-    anno_df (pd.DataFrame): DataFrame with columns including 'Sequence', 'AA Substitution',
-        'Clinical Significance', 'Gene', 'UniProt ID', 'Substitution Location'.
-      
-    Returns:
-    pd.DataFrame: New DataFrame with columns 'Sequence' and 'Cosine Distance', excluding rows with missing values.
-    """
+    
+    
+    
+    
     # Filter to get only canonical sequences
     canon_df = anno_df[anno_df['Clinical Significance'] == 'canon']
     
