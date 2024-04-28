@@ -7,6 +7,12 @@ from evepidr.vep.lm_helpers import batchify
 def embed_with_esm_1b(variants_with_sequences_df: pd.DataFrame, gene_to_sequence: dict, output_file: str) -> dict:
     """
     """
+    all_sequences = []
+    for gene, group in variants_with_sequences_df.groupby('Gene'):
+        ls = list(group['Sequence'])
+        ls.append(gene_to_sequence[gene])
+        all_sequences.append(ls)
+
     model, alphabet = esm.pretrained.esm1b_t33_650M_UR50S()
     model.eval()
 
@@ -16,12 +22,6 @@ def embed_with_esm_1b(variants_with_sequences_df: pd.DataFrame, gene_to_sequence
 
     # Prepare batch for processing
     batch_converter = alphabet.get_batch_converter() # Function from esm
-
-    all_sequences = []
-    for gene, group in variants_with_sequences_df.groupby('Gene'):
-        ls = list(group['Sequence'])
-        ls.append(gene_to_sequence[gene])
-        all_sequences.append(ls)
 
     for sequence_set in all_sequences:
         sequences_as_batches = batchify(sequence_set, 10) # Helper function; Splits up sequences into manageable chunks
@@ -43,6 +43,8 @@ def embed_with_esm_1b(variants_with_sequences_df: pd.DataFrame, gene_to_sequence
 def wt_marginals_with_esm_1v(variants_df: pd.DataFrame, gene_to_sequence: dict) -> pd.DataFrame:
     """
     """
+    variants_groupby_genes = {group_name: group_data for group_name, group_data in variants_df.groupby('Gene')}
+    
     model, alphabet = esm.pretrained.esm1v_t33_650M_UR90S_1()
     model.eval()
 
@@ -51,8 +53,6 @@ def wt_marginals_with_esm_1v(variants_df: pd.DataFrame, gene_to_sequence: dict) 
         print("Transferred model to GPU")
 
     batch_converter = alphabet.get_batch_converter()
-
-    variants_groupby_genes = {group_name: group_data for group_name, group_data in variants_df.groupby('Gene')}
 
     for gene, sequence in gene_to_sequence.items():
         df = variants_groupby_genes[gene]
@@ -63,9 +63,9 @@ def wt_marginals_with_esm_1v(variants_df: pd.DataFrame, gene_to_sequence: dict) 
           token_probs = torch.log_softmax(model(batch_tokens.cuda())["logits"], dim=-1)
           df['ESM-1v WT Marginals'] = df.apply(
               lambda row: _label_row(
-                  row['AA Substitution'], 
-                  sequence, 
-                  token_probs, 
+                  row['AA Substitution'],
+                  sequence,
+                  token_probs,
                   alphabet
                   ),
               axis=1
