@@ -4,17 +4,32 @@ from evepidr.vep.lm_utils import *
 from evepidr.vep.esm import *
 from evepidr.vep.alphamissense import *
 
-variants_df = pd.read_csv("clinvar_data_patho_benign.csv", index=False)
 
-# ESM-1b predictions
+variants_df = pd.read_csv("clinvar_data_patho_benign.csv")
 gene_to_sequence = fasta_to_dict("asd_linked_idps.fasta")
-sequences_for_esm1b, variants_df_with_sequence = prepare_sequences_for_lms(variants_df, protein_sequnces)
-model_alpha = load_esm_1b()
-embeddings_file = 'esm_1b_per_residue_embeddings.py'
-for sequences in sequences_for_esm1b:
-  embed(model_alpha, sequences, embeddings_file)
-embeddings_dict = hdf5_to_dict(embeddings_file)
-reduced_embeddings = reduce(embeddings_dict.values())
-normalised_embeddings_dict = dict(zip(embeddings_dict.keys(), normalise(reduced_embeddings)))
 
-cosine_distance
+## AlphaMissense Pathogenicities
+am_tsv_file_path = ''
+variants_df = alpha_missense_scores(variants_df, am_tsv_file_path)
+
+## ESM-1b Cosine Distances
+embeddings_dict = embed_with_esm_1b(variants_df, gene_to_sequence, 'esm_1b_per_residue_embeddings.py')
+reduced_embeddings = reduce(list(embeddings_dict.values()))
+normalised_embeddings = normalise(reduced_embeddings)
+# Save reduced and normalised embeddings in csv
+rows = []
+for sequence, reduced, normalised in zip(embeddings_dict, reduced_embeddings, normalised_embeddings):
+    rows.append({'Sequence': sequence, 'Type': 'Reduced', **{f'Dim_{i+1}': value for i, value in enumerate(reduced)}})
+    rows.append({'Sequence': sequence, 'Type': 'Normalised', **{f'Dim_{i+1}': value for i, value in enumerate(normalised)}})
+embeddings_df = pd.DataFrame(rows)
+embeddings_df.to_csv('esm_1b_reduced_normalised_embeddings.csv')
+normalised_dict = dict(zip(embeddings_dict, normalised_embeddings))
+# Calculate cosine distances
+variants_df = cosine_distance(normalised_dict, variants_df, gene_to_sequence)
+
+## ESM-1v WildType Marginals
+variants_df = wt_marginals_with_esm_1v(variants_df, gene_to_sequence)
+
+## Save pathogenicity predictions in csv
+print(variants.head()
+variants_df.to_csv('predicted_pathogenicities.csv')
