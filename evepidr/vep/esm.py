@@ -19,7 +19,7 @@ def embed_with_esm_1b(variants_with_sequences_df: pd.DataFrame, gene_to_sequence
 
     all_sequences = []
     for gene, group in variants_with_sequences_df.groupby('Gene'):
-        ls = list(group['Sequences'])
+        ls = list(group['Sequence'])
         ls.append(gene_to_sequence[gene])
         all_sequences.append(ls)
 
