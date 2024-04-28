@@ -12,6 +12,6 @@ def label_if_substitution_in_idr(variant_df: pd.DataFrame, idr_regions: dict) ->
                 return 'IDR'
             else:
                 return 'Folded'
-                
+
     variant_df['Substitution Region'] = variant_df.apply(label_region, axis=1)
     return variant_df
