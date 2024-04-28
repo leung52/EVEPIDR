@@ -10,7 +10,7 @@ uniprot_ids = ["O00571", "Q06787", "P17600", "P35222", "Q00839", "Q96PV0", "P158
 
 gene_to_sequence, gene_to_uniprot_id = get_canonical_sequence_from_uniprot(uniprot_ids)
 
-save_sequences_as_fasta(gene_to_sequence, "asd_linked_idps.fasta")
+save_sequences_as_fasta(gene_to_sequence, "report/data/asd_linked_idps.fasta")
 
 clinvar_ids = []
 for gene in gene_to_uniprot_id.keys():
@@ -18,7 +18,7 @@ for gene in gene_to_uniprot_id.keys():
     time.sleep(0.333333334)
 
 clinvar_xml = clinvar_variant_info(clinvar_ids)
-clinvar_xml.write("clincar_data.xml")
+clinvar_xml.write("report/data/clincar_data.xml")
 
 clinvar_df = clean_clinvar_xml_variants(gene_to_uniprot_id, clinvar_xml)
 
@@ -42,4 +42,4 @@ idrs = {
 }
 
 clinvar_df = label_if_substitution_in_idr(clinvar_df, idrs)
-clinvar_df.to_csv("clinvar_data_patho_benign.csv", index=False)
+clinvar_df.to_csv("report/data/clinvar_data_patho_benign.csv", index=False)
