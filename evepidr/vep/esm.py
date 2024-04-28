@@ -1,9 +1,8 @@
 import torch
 import esm
-import h5py
 import pandas as pd
 
-from evepidr.vep.lm_helpers import batchify, 
+from evepidr.vep.lm_helpers import batchify
 
 def embed_with_esm_1b(variants_with_sequences_df: pd.DataFrame, gene_to_sequence: dict, output_file: str) -> dict:
     """
