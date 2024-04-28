@@ -13,6 +13,7 @@ am_tsv_file_path = ''
 variants_df = alpha_missense_scores(variants_df, am_tsv_file_path)
 
 ## ESM-1b Cosine Distances
+variants_df = variants_df = add_sequences_to_variants_df(variants_df, gene_to_sequence)
 embeddings_dict = embed_with_esm_1b(variants_df, gene_to_sequence, 'esm_1b_per_residue_embeddings.py')
 reduced_embeddings = reduce(list(embeddings_dict.values()))
 normalised_embeddings = normalise(reduced_embeddings)
@@ -31,5 +32,5 @@ variants_df = cosine_distance(normalised_dict, variants_df, gene_to_sequence)
 variants_df = wt_marginals_with_esm_1v(variants_df, gene_to_sequence)
 
 ## Save pathogenicity predictions in csv
-print(variants.head()
+print(variants.head())
 variants_df.to_csv('predicted_pathogenicities.csv')
