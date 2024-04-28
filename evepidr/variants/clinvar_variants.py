@@ -51,11 +51,11 @@ def clean_clinvar_xml_variants(gene_to_uniprot_id: dict, clinvar_xml: ET.Element
     pathogenicities = []
     clinvar_ids = []
     uniprot_ids = []
-    
+
     for variant_xml in clinvar_xml.findall(".//DocumentSummary"):
         germline_classification = variant_xml.find('.//germline_classification/description').text
         germline_classification = _adjust_clinvar_classification(germline_classification)
-        
+
         if germline_classification in ['Pathogenic', 'Benign']:
             title = variant_xml.find('title').text
             parts = title.split('(')
@@ -73,7 +73,7 @@ def clean_clinvar_xml_variants(gene_to_uniprot_id: dict, clinvar_xml: ET.Element
                     pathogenicities.append(germline_classification)
                     clinvar_ids.append(id)
                     uniprot_ids.append(gene_to_uniprot_id.get(gene))
-        
+
     data = {
         'Gene': genes,
         'AA Substitution': aa_substitutions,
@@ -81,7 +81,7 @@ def clean_clinvar_xml_variants(gene_to_uniprot_id: dict, clinvar_xml: ET.Element
         'ClinVar ID': clinvar_ids,
         'UniProt ID': uniprot_ids
     }
-    
+
     return pd.DataFrame(data)
 
 
@@ -114,7 +114,7 @@ def _three_to_one_aa_code(code: str) -> str:
     }
 
     one_code = three_to_single.get(code)
-    
+
     if not one_code:
         raise ValueError(f"{code} is not an amino acid code")
     else:
