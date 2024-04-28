@@ -28,7 +28,7 @@ def fasta_to_dict(file_path: str) -> dict:
 
     return parsed_seqs
 
-def add_sequences_to_variants_df(variants_df: pd.DataFrame, protein_sequences: dict) -> pd.DataFrame:
+def add_sequences_to_variants_df(variants_df: pd.DataFrame, gene_to_sequence: dict) -> pd.DataFrame:
     """
     """
     df = variants_df.copy()
@@ -36,7 +36,7 @@ def add_sequences_to_variants_df(variants_df: pd.DataFrame, protein_sequences: d
 
     for index, row in df.iterrows():
         gene = row['Gene']
-        sequence = protein_sequences.get(gene)
+        sequence = gene_to_sequence.get(gene)
         if sequence:
             aa_substitution = row['AA Substitution']
             if len(aa_substitution) > 2:
