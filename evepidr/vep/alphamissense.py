@@ -1,3 +1,5 @@
+import pandas as pd
+
 ## Structure of AlphaMissense_aa_substitutions.tsv
 # uniprot_id - UniProtKB accession number of the protein in which the variant induces a single amino-acid substitution (UniProt release 2021_02).
 # protein_variant - Amino acid change induced by the alternative allele, in the format <Reference amino acid><POS_aa><Alternative amino acid> (e.g. V2L). POS_aa is the 1-based position of the residue within the protein amino acid sequence.
@@ -7,17 +9,13 @@
 # source: https://zenodo.org/records/10813168
 # AlphaMissense file is too large for GitHub, ask user to download it locally to use
 
-import pandas as pd
-
-
-def alpha_missense_scores(variants_df: pd.DataFrame, am_tsv_file_path: str, save_to_file: str) -> pd.DataFrame:
+def alpha_missense_scores(variants_df: pd.DataFrame, am_tsv_file_path: str) -> pd.DataFrame:
     """
     """
     am_predictions_df = pd.DataFrame()
 
     # Create a set for faster lookup
-    reference_df = = variants_df[variants_df['Pathogenicity'] != 'Canon']
-    lookup_set = set(zip(reference_df['UniProt ID'], reference_df['AA Substitution']))
+    lookup_set = set(zip(variants_df['UniProt ID'], variants_df['AA Substitution']))
 
     # Process the TSV file in chunks
     for chunk in pd.read_csv(am_tsv_file_path, sep='\t', chunksize=1000000, skiprows=3):
@@ -25,5 +23,10 @@ def alpha_missense_scores(variants_df: pd.DataFrame, am_tsv_file_path: str, save
         chunk_filtered = chunk[chunk.apply(lambda x: (x['uniprot_id'], x['protein_variant']) in lookup_set, axis=1)]
         # Append the filtered chunk to the results DataFrame
         am_predictions_df = pd.concat([am_predictions_df, chunk_filtered], ignore_index=True)
+    
+    am_predictions_df.rename(columns={'uniprot_id': 'UniProt ID', 'protein_variant': 'AA Substitution', 'am_pathogenicity': 'AM Pathogenicity'}, inplace=True)
+    am_predictions_df.drop('am_class', axis=1, inplace=True)
 
-    return am_predictions_df
+    merged_df = pd.merge(variants_df, am_predictions_df, on=['UniProt ID', 'AA Substitution'])
+
+    return merged_df
