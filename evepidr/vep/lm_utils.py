@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import h5py
+from scipy.spatial.distance import cosine
 
 
 def fasta_to_dict(file_path: str) -> dict:
@@ -74,9 +75,9 @@ def cosine_distance(reduced_embeddings: dict, variants_df_w_sequence: pd.DataFra
     for index, row in variants_df.iterrows():
         if row['Sequence'] in reduced_embeddings:
             canon_embedding = gene_to_embedding.get(row['Gene'])
-            if canon_embedding:
+            if canon_embedding is not None:
                 variant_embedding = reduced_embeddings[row['Sequence']]
-                cosine_distance = distance.cosine(canon_embedding, variant_embedding)
+                cosine_distance = cosine(canon_embedding, variant_embedding)
                 variants_df.at[index, 'ESM-1b Cosine Distance'] = cosine_distance
             else:
                 variants_df.drop(index, inplace=True)

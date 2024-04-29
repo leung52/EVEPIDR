@@ -2,7 +2,9 @@ import torch
 import esm
 import pandas as pd
 
-from evepidr.vep.lm_helpers import batchify
+from evepidr.vep.lm_helpers import batchify, save_to_h5py
+from evepidr.vep.lm_utils import hdf5_to_dict
+
 
 def embed_with_esm_1b(variants_with_sequences_df: pd.DataFrame, gene_to_sequence: dict, output_file: str) -> dict:
     """
@@ -24,18 +26,18 @@ def embed_with_esm_1b(variants_with_sequences_df: pd.DataFrame, gene_to_sequence
     batch_converter = alphabet.get_batch_converter() # Function from esm
 
     for sequence_set in all_sequences:
-        sequences_as_batches = batchify(sequence_set, 10) # Helper function; Splits up sequences into manageable chunks
+        sequences_as_batches = batchify(sequence_set, 5)  # Helper function; Splits up sequences into manageable chunks
         for sequence_batch in sequences_as_batches:
-            # Convert enumerate object to list
             enumerated_sequences = list(enumerate(sequence_batch))
             batch_labels, batch_strs, batch_tokens = batch_converter(enumerated_sequences)
 
-            # Compute embeddings
+            device = next(model.parameters()).device
+            batch_tokens = batch_tokens.to(device)
+
             with torch.no_grad():
-                results = model(batch_tokens, repr_layers=[33])  # Layer 33 most commonly used
+                results = model(batch_tokens, repr_layers=[33])  # Use the same device for model and tokens
                 token_representations = results["representations"][33]
 
-            # Save embeddings to h5py file
             save_to_h5py(token_representations, sequence_batch, output_file)
 
     return hdf5_to_dict(output_file)
@@ -44,7 +46,7 @@ def wt_marginals_with_esm_1v(variants_df: pd.DataFrame, gene_to_sequence: dict) 
     """
     """
     variants_groupby_genes = {group_name: group_data for group_name, group_data in variants_df.groupby('Gene')}
-    
+
     model, alphabet = esm.pretrained.esm1v_t33_650M_UR90S_1()
     model.eval()
 
@@ -55,21 +57,26 @@ def wt_marginals_with_esm_1v(variants_df: pd.DataFrame, gene_to_sequence: dict) 
     batch_converter = alphabet.get_batch_converter()
 
     for gene, sequence in gene_to_sequence.items():
-        df = variants_groupby_genes[gene]
-        data = [(1, sequence)]
-        batch_labels, batch_strs, batch_tokens = batch_converter(data)
+        df = variants_groupby_genes.get(gene)
+        if df is not None:
+            data = [(1, sequence)]
+            batch_labels, batch_strs, batch_tokens = batch_converter(data)
 
-        with torch.no_grad():
-          token_probs = torch.log_softmax(model(batch_tokens.cuda())["logits"], dim=-1)
-          df['ESM-1v WT Marginals'] = df.apply(
-              lambda row: _label_row(
-                  row['AA Substitution'],
-                  sequence,
-                  token_probs,
-                  alphabet
-                  ),
-              axis=1
-          )
+            device = next(model.parameters()).device
+            batch_tokens = batch_tokens.to(device)
+
+            with torch.no_grad():
+                logits = model(batch_tokens)["logits"]
+                token_probs = torch.log_softmax(logits, dim=-1)
+                df['ESM-1v WT Marginals'] = df.apply(
+                    lambda row: _label_row(
+                        row['AA Substitution'],
+                        sequence,
+                        token_probs,
+                        alphabet
+                    ),
+                    axis=1
+                )
 
     prediction_df = pd.concat(list(variants_groupby_genes.values()))
     prediction_df.reset_index(drop=True, inplace=True)

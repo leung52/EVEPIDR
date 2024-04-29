@@ -13,8 +13,11 @@ def get_canonical_sequence_from_uniprot(uniprot_ids: list) -> dict:
         response = requests.get(request_url, headers={"Accept": "application/json"})
         if response.ok:
             responseBody = json.loads(response.text)
-            gene_to_sequence[responseBody["gene"][0]["name"]["value"]] = responseBody["sequence"]["sequence"]
-            gene_to_uniprot_ids[responseBody["gene"][0]["name"]["value"]] = id
+            if len(responseBody["sequence"]["sequence"]) < 1024:
+                gene_to_sequence[responseBody["gene"][0]["name"]["value"]] = responseBody["sequence"]["sequence"]
+                gene_to_uniprot_ids[responseBody["gene"][0]["name"]["value"]] = id
+            else:
+                print(f'{id} too long. Length: {len(responseBody["sequence"]["sequence"])}')
         else:
             print(f"{id} not found.")
 
