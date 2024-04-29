@@ -41,7 +41,6 @@ def plot_roc_curve_and_save(true_values: list, models_scores: list, model_labels
     plt.rcParams.update({'font.size': 22})
     file_name = 'report/figures/' + plot_title.replace(" ", "_") + '_roc.svg'
     plt.savefig(file_name)
-    plt.show()
     plt.close()
 
 def find_true_pos_rate(true_values: list, model_scores: list, lower_threshold: float, upper_threshold: float) -> float:
