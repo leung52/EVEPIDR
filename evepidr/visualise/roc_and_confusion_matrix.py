@@ -23,7 +23,7 @@ def get_scores_and_true_values(pathogenicities_df: pd.DataFrame) -> dict:
         scored_and_true_values[region_str] = (true_values, model_scores, labels)
     return scored_and_true_values
     
-def plot_roc_curve_and_save(true_values: list, models_scores: list, model_labels: list, plot_title: str, file_name: str) -> None:
+def plot_roc_curve_and_save(true_values: list, models_scores: list, model_labels: list, plot_title: str) -> None:
     plt.figure(figsize=(10, 8))
     for model_scores, label in zip(models_scores, model_labels):
         fpr, tpr, _ = roc_curve(true_values, model_scores)
@@ -31,15 +31,17 @@ def plot_roc_curve_and_save(true_values: list, models_scores: list, model_labels
         plt.plot(fpr, tpr, linewidth=2, label=f'{label} (AUC = {roc_auc:.3f})')
 
     plt.plot([0, 1], [0, 1], 'k--', linewidth=2)
-    plt.xlim([0.0, 1.05])
-    plt.ylim([0.0, 1.05])
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.0])
     plt.xlabel('False Positive Rate')
     plt.ylabel('True Positive Rate')
-    plt.title(plot_title + ' - Receiver Operating Characteristic')
+    plt.title(plot_title + ' Receiver Operating Characteristic')
     plt.legend(loc="lower right")
     plt.grid(False)
-    plt.savefig(file_name, format='svg')  # Save the figure to an SVG file
-    plt.close()  # Close the plot to free up memory
+    file_name = 'report/figures/' + plot_title[:-2].replace(" ", "_") + '_roc.svg'
+    plt.savefig(file_name)
+    plt.show()
+    plt.close()
 
 def find_true_pos_rate(true_values: list, model_scores: list, lower_threshold: float, upper_threshold: float) -> float:
     true_values_array = np.array(true_values)
