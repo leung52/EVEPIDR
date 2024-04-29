@@ -6,7 +6,6 @@ from evepidr.vep.alphamissense import *
 
 
 variants_df = pd.read_csv("report/data/clinvar_data_patho_benign.csv")
-variants_df = variants_df.head(10)
 gene_to_sequence = fasta_to_dict("report/data/asd_linked_idps.fasta")
 
 ## AlphaMissense Pathogenicities
@@ -24,7 +23,7 @@ for sequence, reduced, normalised in zip(embeddings_dict, reduced_embeddings, no
     rows.append({'Sequence': sequence, 'Type': 'Reduced', **{f'Dim_{i+1}': value for i, value in enumerate(reduced)}})
     rows.append({'Sequence': sequence, 'Type': 'Normalised', **{f'Dim_{i+1}': value for i, value in enumerate(normalised)}})
 embeddings_df = pd.DataFrame(rows)
-embeddings_df.to_csv('esm_1b_reduced_normalised_embeddings.csv')
+embeddings_df.to_csv('report/data/esm_1b_reduced_normalised_embeddings.csv', index=False)
 normalised_dict = dict(zip(embeddings_dict, normalised_embeddings))
 # Calculate cosine distances
 variants_df = cosine_distance(normalised_dict, variants_df, gene_to_sequence)
@@ -33,4 +32,4 @@ variants_df = cosine_distance(normalised_dict, variants_df, gene_to_sequence)
 variants_df = wt_marginals_with_esm_1v(variants_df, gene_to_sequence)
 
 ## Save pathogenicity predictions in csv
-variants_df.to_csv('report/data/predicted_pathogenicities.csv')
+variants_df.to_csv('report/data/predicted_pathogenicities.csv', index=False)
