@@ -38,6 +38,7 @@ def plot_roc_curve_and_save(true_values: list, models_scores: list, model_labels
     plt.title(plot_title + ' - ROC')
     plt.legend(loc="lower right")
     plt.grid(False)
+    plt.rcParams.update({'font.size': 22})
     file_name = 'report/figures/' + plot_title.replace(" ", "_") + '_roc.svg'
     plt.savefig(file_name)
     plt.show()
