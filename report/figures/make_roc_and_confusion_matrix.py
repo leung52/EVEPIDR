@@ -5,10 +5,10 @@ pathogenicities_df = pd.read_csv('report/data/predicted_pathogenicities.csv')
 pathogenicities_dict = get_scores_and_true_values(pathogenicities_df)
 
 for region, (true_values, models_scores, labels) in pathogenicities_dict.items():
-    title = region + ' located substitutions: '
+    title = region + ' located substitutions'
 
     # ROC plot
-    plot = plot_roc_curve(true_values, models_scores, labels, title)
+    plot_roc_curve_and_save(true_values, models_scores, labels, title)
 
     # TPR of AM and threshold values for ESM-1b and ESM-1v
     am_lower_threshold = 0.34
