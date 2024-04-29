@@ -35,10 +35,10 @@ def plot_roc_curve_and_save(true_values: list, models_scores: list, model_labels
     plt.ylim([0.0, 1.0])
     plt.xlabel('False Positive Rate')
     plt.ylabel('True Positive Rate')
-    plt.title(plot_title + ' Receiver Operating Characteristic')
+    plt.title(plot_title + ' - ROC')
     plt.legend(loc="lower right")
     plt.grid(False)
-    file_name = 'report/figures/' + plot_title[:-2].replace(" ", "_") + '_roc.svg'
+    file_name = 'report/figures/' + plot_title.replace(" ", "_") + '_roc.svg'
     plt.savefig(file_name)
     plt.show()
     plt.close()
