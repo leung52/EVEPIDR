@@ -1,3 +1,5 @@
+import pandas as pd
+
 from evepidr.visualise.roc_and_confusion_matrix import *
 
 
