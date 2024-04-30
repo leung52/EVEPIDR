@@ -21,12 +21,12 @@ def plot_predictive_scores_on_histogram(pathogenicities_df: pd.DataFrame, models
             combined_scores = np.concatenate((path_scores, benign_scores))
             bins = np.linspace(np.min(combined_scores), np.max(combined_scores), 50)
 
-            ax.hist(path_scores, bins=bins, alpha=0.6, label='Pathogenic')
-            ax.hist(benign_scores, bins=bins, alpha=0.6, label='Benign')
+            ax.hist(path_scores, weights=np.ones(len(path_scores)) / len(path_scores), bins=bins, alpha=0.6, label='Pathogenic')
+            ax.hist(benign_scores, weights=np.ones(len(benign_scores)) / len(benign_scores),  bins=bins, alpha=0.6, label='Benign')
             
             ax.set_title(model_col)
             ax.set_xlabel('Pathogenicity Score')
-            ax.set_ylabel('Count')
+            ax.set_ylabel('Percentage')
             ax.legend()
             ax.tick_params(axis='x', rotation=45)
             ax.autoscale(enable=True, axis='y', tight=True)  # Auto-scale the y-axis
