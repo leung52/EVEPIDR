@@ -24,6 +24,7 @@ def get_scores_and_true_values(pathogenicities_df: pd.DataFrame) -> dict:
     return scored_and_true_values
     
 def plot_roc_curve_and_save(true_values: list, models_scores: list, model_labels: list, plot_title: str) -> None:
+    plt.rcParams.update({'font.size': 18})
     plt.figure(figsize=(10, 8))
     for model_scores, label in zip(models_scores, model_labels):
         fpr, tpr, _ = roc_curve(true_values, model_scores)
@@ -38,7 +39,6 @@ def plot_roc_curve_and_save(true_values: list, models_scores: list, model_labels
     plt.title(plot_title + ' - ROC')
     plt.legend(loc="lower right")
     plt.grid(False)
-    plt.rcParams.update({'font.size': 22})
     file_name = 'report/figures/' + plot_title.replace(" ", "_") + '_roc.svg'
     plt.savefig(file_name)
     plt.close()
@@ -58,7 +58,7 @@ def find_threshold_for_tpr(true_values: list, model_scores: list, target_tpr: fl
     index = np.nanargmin(np.abs(tpr - target_tpr))
     return thresholds[index]
 
-def print_confusion_matrix(true_values: list, model_scores: list, model_label: str, upper_threshold: float, lower_threshold: float=None) -> None:
+def save_confusion_matrix(true_values: list, model_scores: list, model_label: str, output_file: str, upper_threshold: float, lower_threshold: float=None) -> None:
     true_values_array = np.array(true_values)
     model_scores_array = np.array(model_scores)
 
@@ -81,12 +81,13 @@ def print_confusion_matrix(true_values: list, model_scores: list, model_label: s
         fnr = fn / (fn + tp) if (fn + tp) > 0 else 0  # False Negative Rate
         precision = tp / (tp + fp) if (tp + fp) > 0 else 0  # Precision
 
-        print(f'Confusion Matrix for {model_label} (Threshold={upper_threshold}, {lower_threshold}):')
-        print(f'True Positives (TP): {tp}               True Positive Rate (Recall, Sensitivity): {tpr}')
-        print(f'True Negatives (TN): {tn}               True Negative Rate (Specificity): {tnr}')
-        print(f'False Positives (FP): {fp}              False Positive Rate: {fpr}')
-        print(f'False Negatives (FN): {fn}              False Negative Rate: {fnr}')
-        print(f'Precision: {precision}')
-        print()
+        with open(output_file, 'a') as file:
+            file.write(f'Confusion Matrix for {model_label} (Threshold={upper_threshold}, {lower_threshold}):\n')
+            file.write(f'True Positives (TP): {tp}               True Positive Rate (Recall, Sensitivity): {tpr}\n')
+            file.write(f'True Negatives (TN): {tn}               True Negative Rate (Specificity): {tnr}\n')
+            file.write(f'False Positives (FP): {fp}              False Positive Rate: {fpr}\n')
+            file.write(f'False Negatives (FN): {fn}              False Negative Rate: {fnr}\n')
+            file.write(f'Precision: {precision}\n\n')
     else:
-        print(f'No valid predictions available for {model_label} due to all being NaN.')
+        with open(output_file, 'a') as file:
+            file.write(f'No valid predictions available for {model_label} due to all being NaN.\n')
