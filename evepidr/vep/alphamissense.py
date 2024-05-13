@@ -11,6 +11,16 @@ import pandas as pd
 
 def alpha_missense_scores(variants_df: pd.DataFrame, am_tsv_file_path: str) -> pd.DataFrame:
     """
+    Integrates AlphaFold Missense (AM) predictions from a TSV file with a DataFrame of variant data based on matching UniProt IDs and amino acid substitutions.
+
+    This function reads a TSV file containing AlphaFold Missense predictions and filters it to include only the predictions that match the UniProt IDs and amino acid substitutions provided in the input DataFrame. It merges these predictions into the original DataFrame, adding a new column with the AlphaFold pathogenicity scores.
+    
+    Parameters:
+    - variants_df (pd.DataFrame): A DataFrame containing at least the columns 'UniProt ID' and 'AA Substitution', representing variants to be scored.
+    - am_tsv_file_path (str): The file path to the TSV file containing AlphaFold Missense predictions. The file is expected to have columns for 'uniprot_id', 'protein_variant', and 'am_pathogenicity', and may include a header and other irrelevant data.
+    
+    Returns:
+    - pd.DataFrame: The original DataFrame enriched with a new column 'AM Pathogenicity', containing the pathogenicity scores from AlphaFold corresponding to each variant.
     """
     am_predictions_df = pd.DataFrame()
 
