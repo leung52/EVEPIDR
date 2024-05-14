@@ -6,6 +6,20 @@ from scipy.stats import norm
 
 def plot_roc_curve_and_save(model_predictions_df: pd.DataFrame, true_value_column: str, model_columns: list, plot_title: str, save_file: str, ci: int=95) -> None:
     """
+    Plots the Receiver Operating Characteristic (ROC) curve for each model's scores against true binary classification outcomes and saves the resulting plot to a file.
+
+    This function calculates and plots the ROC curve for multiple models based on their scores and true binary labels. It computes the area under the curve (AUC) and a confidence interval for the AUC using the Hanley and McNeil method. Each model's ROC curve, along with its AUC and confidence interval, is plotted and labeled. The plot is saved as a file.
+    
+    Parameters:
+    - model_predictions_df (pd.DataFrame): DataFrame containing the true values and predictions from multiple models.
+    - true_value_column (str): The name of the column in `model_predictions_df` that contains the true binary labels.
+    - model_columns (list): A list of column names in `model_predictions_df` for which to plot ROC curves.
+    - plot_title (str): The title of the plot.
+    - save_file (str): Path to the file where the plot will be saved.
+    - ci (int, optional): The confidence interval percentage for the AUC calculation (default is 95).
+    
+    Returns:
+    - None
     """
     plt.rcParams.update({'font.size': 18})
     plt.figure(figsize=(10, 8))
