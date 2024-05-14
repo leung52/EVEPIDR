@@ -4,7 +4,7 @@ from sklearn.metrics import roc_curve, auc
 from scipy.stats import norm
 
 
-def plot_roc_curve_and_save(true_values: list, models_scores: list, model_labels: list, plot_title: str, save_file: str, n_bootstraps:int=10000, ci:int=95) -> None:
+def plot_roc_curve_and_save(model_predictions_df: pd.DataFrame, true_value_column: str, model_columns: list, plot_title: str, save_file: str, ci: int=95) -> None:
     """
     Plots the ROC curve for each model's scores against true binary classification outcomes and saves the plot.
     
@@ -25,10 +25,11 @@ def plot_roc_curve_and_save(true_values: list, models_scores: list, model_labels
     plt.rcParams.update({'font.size': 18})
     plt.figure(figsize=(10, 8))
 
-    true_values = np.array(true_values)  # Convert true_values to a numpy array
+    true_values = [1 if x == 'Pathogenic' else 0 for x in model_predictions_df[true_value_column]]
+    true_values = np.array(true_values)
 
-    for model_scores, label in zip(models_scores, model_labels):
-        model_scores = np.array(model_scores)  # Convert model_scores to a numpy array
+    for model in model_columns:
+        model_scores = np.array(model_predictions_df[model])
         fpr, tpr, _ = roc_curve(true_values, model_scores)
         roc_auc = auc(fpr, tpr)
 
@@ -44,46 +45,16 @@ def plot_roc_curve_and_save(true_values: list, models_scores: list, model_labels
         confidence_lower = roc_auc - z_score * SE
         confidence_upper = roc_auc + z_score * SE
 
-        plt.plot(fpr, tpr, linewidth=2, label=f'{label} (AUC = {roc_auc:.3f}, {ci}% CI = [{confidence_lower:.3f}, {confidence_upper:.3f}])')
+        plt.plot(fpr, tpr, linewidth=2, label=f'{model} (AUC = {roc_auc:.3f}, {ci}% CI = [{confidence_lower:.3f}, {confidence_upper:.3f}])')
 
     plt.plot([0, 1], [0, 1], 'k--', linewidth=2)
     plt.xlim([0.0, 1.0])
     plt.ylim([0.0, 1.0])
     plt.xlabel('False Positive Rate')
     plt.ylabel('True Positive Rate')
-    plt.title(plot_title + ' - ROC')
+    plt.title(plot_title)
     plt.legend(loc="lower right")
     plt.grid(False)
     plt.savefig(save_file)
     plt.show()
     plt.close()
-
-def get_scores_and_true_values(pathogenicities_df: pd.DataFrame) -> dict:
-    """
-    Extracts true binary values and corresponding scores for different models from a DataFrame grouped by substitution region.
-    
-    This function processes a DataFrame that contains pathogenicity data along with various model scores for different regions of substitution. It groups the data by substitution region, converts the pathogenicity to binary format, and extracts scores for different models. It returns a dictionary with each region as a key and tuples of true values, model scores, and labels as values.
-    
-    Parameters:
-    - pathogenicities_df (pd.DataFrame): A DataFrame containing the columns 'Substitution Region', 'Pathogenicity', and various columns for model scores.
-    
-    Returns:
-    - dict: A dictionary where keys are region type and values are tuples containing lists of true values, lists of lists of model scores, and list of model labels.
-    """
-    scored_and_true_values = {}
-
-    for region_str, grouped_df in pathogenicities_df.groupby('Substitution Region'):
-        true_values = grouped_df['Pathogenicity'].to_list()
-        true_values = [1 if item == 'Pathogenic' else 0 for item in true_values]
-        alphamissense = grouped_df['AM Pathogenicity'].to_list()
-        esm1b_cosine = grouped_df['ESM-1b Cosine Distance'].to_list()
-        esm1v_marginal = grouped_df['ESM-1v WT Marginals'].to_list()
-
-        model_scores = [alphamissense, esm1b_cosine, esm1v_marginal]
-        labels = ['AM Pathogenicity', 'ESM-1b Cosine Distance', 'ESM-1v WT Marginals']
-
-        if region_str == 'Folded':
-            region_str = 'Folded region'
-
-        scored_and_true_values[region_str] = (true_values, model_scores, labels)
-    return scored_and_true_values
