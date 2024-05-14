@@ -6,21 +6,6 @@ from scipy.stats import norm
 
 def plot_roc_curve_and_save(model_predictions_df: pd.DataFrame, true_value_column: str, model_columns: list, plot_title: str, save_file: str, ci: int=95) -> None:
     """
-    Plots the ROC curve for each model's scores against true binary classification outcomes and saves the plot.
-    
-    This function takes arrays of true classification results and predicted scores from multiple models, plots the ROC curve for each model, and displays the AUC (Area Under Curve) score with a confidence interval. It also prints the AUC and its confidence interval for each model to the console. The plot is saved to a file.
-    
-    Parameters:
-    - true_values (list): A list of true binary labels for the classification task.
-    - models_scores (list of lists): A list containing arrays of scores from different models. Each sublist corresponds to one model.
-    - model_labels (list): A list of strings that are labels for each model, used in the legend.
-    - plot_title (str): The title for the plot.
-    - save_file (str): File path for saved plot.
-    - n_bootstraps (int, optional): The number of bootstrap samples to use when estimating the confidence interval. Default is 10,000.
-    - ci (int, optional): The confidence level for the AUC confidence interval as a percentage. Default is 95.
-    
-    Returns:
-    - None
     """
     plt.rcParams.update({'font.size': 18})
     plt.figure(figsize=(10, 8))
