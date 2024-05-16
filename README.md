@@ -7,3 +7,5 @@ Includes functions to:
 * plot ROC with AUC
 * generate confusion matrices for prediction methods
 * plot histogram of pathogenic and benign variant scores
+
+Functions found in evepidr folder. Use case examples found in report.
