@@ -9,6 +9,8 @@ variants_df = pd.read_csv("report/data/clinvar_data_patho_benign.csv")
 gene_to_sequence = fasta_to_dict("report/data/asd_linked_idps.fasta")
 
 ## AlphaMissense Pathogenicities
+# need to download and add AlphaMissense_aa_substitutions.tsv to folder
+# https://zenodo.org/records/10813168
 am_tsv_file_path = 'report/data/AlphaMissense_aa_substitutions.tsv'
 variants_df = alpha_missense_scores(variants_df, am_tsv_file_path)
 

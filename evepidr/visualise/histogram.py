@@ -3,8 +3,19 @@ import numpy as np
 import pandas as pd
 
 
-def plot_predictive_scores_on_histogram(pathogenicities_df: pd.DataFrame, models: list, file_name: str):
+def plot_predictive_scores_on_histogram(pathogenicities_df: pd.DataFrame, models: list, save_file: str) -> None:
     """
+    Plots histogram comparisons of pathogenic and benign predictive scores for different models, separated by substitution regions.
+
+    This function takes a DataFrame containing pathogenicity scores from multiple models and plots histograms for pathogenic versus benign scores, grouped by substitution regions. Each region's data is plotted in separate figures with histograms for each model, illustrating the distribution of scores. The figures are saved as separate image files.
+    
+    Parameters:
+    - pathogenicities_df (pd.DataFrame): A DataFrame containing pathogenicity scores and labels, with columns for 'Substitution Region' and 'Pathogenicity'.
+    - models (list): A list of column names from the DataFrame representing the models whose scores are to be plotted.
+    - save_file (str): Base path and filename prefix where the histogram plots will be saved. Each plot will be saved with an additional identifier for the region.
+    
+    Returns:
+    - None
     """
     plt.rcParams.update({'font.size': 12})
     for region in pathogenicities_df['Substitution Region'].unique():
@@ -31,5 +42,5 @@ def plot_predictive_scores_on_histogram(pathogenicities_df: pd.DataFrame, models
             ax.tick_params(axis='x', rotation=45)
             ax.autoscale(enable=True, axis='y', tight=True)  # Auto-scale the y-axis
         plt.tight_layout(rect=[0, 0, 1, 1])  # Adjust subplots to fit the figure title
-        plt.savefig(file_name + region + '.svg')  # Save each region to a separate file
+        plt.savefig(save_file + '_' + region + '.png')  # Save each region to a separate file
         plt.close()

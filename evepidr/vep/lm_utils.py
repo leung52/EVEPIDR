@@ -6,6 +6,13 @@ from scipy.spatial.distance import cosine
 
 def fasta_to_dict(file_path: str) -> dict:
     """
+    Reads a FASTA file and returns a dictionary mapping sequence identifiers to sequences.
+
+    Parameters:
+    - file_path (str): Path to the FASTA file.
+    
+    Returns:
+    - dict: A dictionary where keys are sequence identifiers (without the '>' character), and values are sequences.
     """
     parsed_seqs = {}
 
@@ -31,6 +38,16 @@ def fasta_to_dict(file_path: str) -> dict:
 
 def add_sequences_to_variants_df(variants_df: pd.DataFrame, gene_to_sequence: dict) -> pd.DataFrame:
     """
+    Adds sequences to a DataFrame of variants, mutating them as specified in the DataFrame entries.
+
+    This function takes a DataFrame containing variants and their associated genes, retrieves the canonical sequence for each gene, performs specified mutations, and adds these sequences to the DataFrame.
+    
+    Parameters:
+    - variants_df (pd.DataFrame): DataFrame containing columns 'Gene' and 'AA Substitution'.
+    - gene_to_sequence (dict): Dictionary mapping gene names to their canonical sequences.
+    
+    Returns:
+    - pd.DataFrame: The updated DataFrame with a new 'Sequence' column containing the mutated sequences.
     """
     df = variants_df.copy()
     df['Sequence'] = None
@@ -50,6 +67,13 @@ def add_sequences_to_variants_df(variants_df: pd.DataFrame, gene_to_sequence: di
 
 def reduce(embeddings: np.ndarray) -> np.ndarray:
     """
+    Reduces embeddings by taking the mean across the first dimension.
+
+    Parameters:
+    - embeddings (np.ndarray): An array of embeddings, typically with multiple dimensions per embedding.
+    
+    Returns:
+    - np.ndarray: An array of reduced embeddings.
     """
     reduced_embeddings = []
     for full_embedding in embeddings:
@@ -58,11 +82,29 @@ def reduce(embeddings: np.ndarray) -> np.ndarray:
 
 def normalise(embeddings: np.ndarray) -> np.ndarray:
     """
+    Normalises embeddings by subtracting the mean across the zeroth axis.
+
+    Parameters:
+    - embeddings (np.ndarray): An array of embeddings.
+    
+    Returns:
+    - np.ndarray: The normalised array of embeddings.
     """
     return embeddings - np.mean(embeddings, axis=0)
 
 def cosine_distance(reduced_embeddings: dict, variants_df_w_sequence: pd.DataFrame, gene_to_sequence: dict) -> pd.DataFrame:
     """
+    Calculates the cosine distance between canonical and variant sequence embeddings for each entry in a DataFrame.
+
+    This function uses precomputed embeddings for canonical and variant sequences to compute the cosine distance, then updates the DataFrame with these values.
+
+    Parameters:
+    - reduced_embeddings (dict): Dictionary mapping sequences to their reduced embeddings.
+    - variants_df_w_sequence (pd.DataFrame): DataFrame containing variant sequences.
+    - gene_to_sequence (dict): Dictionary mapping genes to canonical sequences.
+    
+    Returns:
+    - pd.DataFrame: Updated DataFrame with a new 'ESM-1b Cosine Distance' column.
     """
     gene_to_embedding = {}
     for key, value in gene_to_sequence.items():
@@ -90,6 +132,13 @@ def cosine_distance(reduced_embeddings: dict, variants_df_w_sequence: pd.DataFra
 
 def hdf5_to_dict(file_path: str) -> dict:
     """
+    Reads embeddings from an HDF5 file into a dictionary.
+
+    Parameters:
+    - file_path (str): Path to the HDF5 file.
+    
+    Returns:
+    - dict: A dictionary where keys are sequence identifiers and values are arrays of embeddings.
     """
     embeddings = {}
     with h5py.File(file_path, 'r') as hf:
@@ -102,6 +151,17 @@ def hdf5_to_dict(file_path: str) -> dict:
 ## ==================== helper function ===============================
 def _mutate(protein_sequence: str, mutation: str) -> str:
     """
+    Mutates a given protein sequence at a specified position to a new amino acid.
+
+    Parameters:
+    - protein_sequence (str): The original amino acid sequence of the protein.
+    - mutation (str): Mutation description in the format 'W102M', where 'W' is the wild-type amino acid, '102' is the position, and 'M' is the mutant.
+    
+    Returns:
+    - str: The mutated protein sequence.
+    
+    Raises:
+    - ValueError: If the mutation position is invalid or the mutation specification does not match the sequence.
     """
     # Adjusting for 1-based index
     n = int(mutation[1:-1])
